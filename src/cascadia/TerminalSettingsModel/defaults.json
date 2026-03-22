@@ -1,6 +1,6 @@
 // THIS IS AN AUTO-GENERATED FILE! Changes to this file will be ignored.
 {
-    "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+    "defaultProfile": "{d7a9f5cd-3c14-4f79-8b1a-2e6f9da3b4c5}",
 
     // Launch Settings
     "initialCols": 120,
@@ -35,6 +35,21 @@
 
     "profiles":
     [
+        {
+            "guid": "{d7a9f5cd-3c14-4f79-8b1a-2e6f9da3b4c5}",
+            "name": "GenQuery",
+            "commandline": "powershell.exe -ExecutionPolicy Bypass -File \"%GENQUERY_RESOURCES_DIR%\\genq\\scripts\\genquery-start.ps1\"",
+            "startingDirectory": "%USERPROFILE%",
+            "hidden": false,
+            "colorScheme": "GenQuery Dark",
+            "fontFace": "Cascadia Mono",
+            "fontSize": 14,
+            "padding": "12, 12, 12, 12",
+            "cursorShape": "bar",
+            "closeOnExit": "automatic",
+            "historySize": 9001,
+            "snapOnInput": true
+        },
         {
             "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
             "name": "Windows PowerShell",

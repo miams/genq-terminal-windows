@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppName" xml:space="preserve">
-    <value>Terminal</value>
+    <value>GenQuery Terminal</value>
     <comment>{Locked=qps-ploc,qps-ploca,qps-plocm}</comment>
   </data>
   <data name="AppNameDev" xml:space="preserve">
@@ -134,7 +134,7 @@
     <comment>{Locked=qps-ploc,qps-ploca,qps-plocm}</comment>
   </data>
   <data name="AppStoreName" xml:space="preserve">
-    <value>Windows Terminal</value>
+    <value>GenQuery Terminal</value>
     <comment>{Locked=qps-ploc,qps-ploca,qps-plocm}</comment>
   </data>
   <data name="AppStoreNameDev" xml:space="preserve">
@@ -166,7 +166,7 @@
     <comment>{Locked=qps-ploc,qps-ploca,qps-plocm}</comment>
   </data>
   <data name="AppDescription" xml:space="preserve">
-    <value>The New Windows Terminal</value>
+    <value>GenQuery Terminal — Genealogy query interface powered by GenQuery and Nushell</value>
   </data>
   <data name="AppDescriptionDev" xml:space="preserve">
     <value>The Windows Terminal, but Unofficial</value>
