@@ -198,25 +198,20 @@ build 10.0.26100). This runner ships with a newer Windows SDK (10.0.26100+) but 
 `/p:WindowsTargetPlatformVersion` tells MSBuild *which* SDK to target, but the SDK still needs to be physically
 installed on the runner.
 
-**Fix:** Add a `vs_installer.exe modify` step before the build to install the missing component:
+**What does NOT work:** `vs_installer.exe modify --quiet` returns immediately and spawns the actual install
+as a background process. The build starts before the install finishes, so MSB8036 still fires.
+
+**Fix:** Pin to `windows-2022` runner, which ships with Windows SDK 10.0.22621.0 pre-installed:
 
 ```yaml
-- name: Install Windows SDK 10.0.22621.0
-  shell: pwsh
-  run: |
-    $vsInstaller = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe'
-    & $vsInstaller modify `
-      --installPath 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise' `
-      --add Microsoft.VisualStudio.Component.Windows11SDK.22621 `
-      --quiet --norestart --force
-    exit 0
+runs-on: windows-2022
 ```
 
-The `exit 0` is intentional — `vs_installer.exe` may exit non-zero on warnings even when the install succeeded,
-which would fail the step.
+Add a comment in the workflow explaining the pin so future maintainers don't revert it to `windows-latest`.
 
-**CI relevance:** Required on any runner that doesn't pre-install SDK 22621. If upgrading the target SDK to
-match the runner (e.g. 10.0.26100.0), verify the codebase builds cleanly against the newer SDK first.
+**CI relevance:** Do not use `windows-latest` for this build. If upgrading the target SDK to match
+`windows-latest` (e.g. 10.0.26100.0), verify the codebase builds cleanly against the newer SDK first,
+then update `/p:WindowsTargetPlatformVersion` and `/p:TargetPlatformVersion` and remove the runner pin.
 
 ---
 
