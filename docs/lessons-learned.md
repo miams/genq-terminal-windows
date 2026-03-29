@@ -247,25 +247,28 @@ had no `project.assets.json` and failed when MSBuild tried to build them.
 
 **What does NOT work:**
 - `-r win-x64`: triggers self-contained restore, looks for `Microsoft.NETCore.App.Runtime.win-x64 8.0.25`
-  which isn't in TerminalDependencies feed (only has 6.0.9) → NU1102.
-- No `-r` flag: restore succeeds but `Microsoft.Windows.SDK.NET.Ref` is not included in
-  `project.assets.json` → MSBuild fails with NETSDK1112 at build time.
+  which isn't in the TerminalDependencies feed (only has 6.0.9) → NU1102.
+- `-r any`: restore succeeds but NETSDK1112 still fires at build time — `any` does not cause dotnet to
+  download `Microsoft.Windows.SDK.NET.Ref` either.
+- `setup-dotnet` installing .NET 8.x + 9.x via `dotnet-install.ps1`: that script installs the SDK
+  binaries only, not framework packs. `Microsoft.Windows.SDK.NET.Ref` is a framework pack installed
+  by the full SDK installer, not by `dotnet-install.ps1`.
 
-**Fix:** Use `-r any` for `net*-windows` projects. `any` is a pseudo-RID that fetches Windows reference
-assemblies (`Microsoft.Windows.SDK.NET.Ref`) without triggering self-contained runtime pack download.
-This is exactly what the NETSDK1112 error message recommends: *"Try running a NuGet restore with the
-RuntimeIdentifier 'any'."*
+**Fix:** Do NOT use `setup-dotnet`. The `windows-2022` runner ships with .NET 8 and .NET 9 installed
+via the full SDK installer, which includes all Windows framework packs. Using the runner's pre-installed
+.NET means `Microsoft.Windows.SDK.NET.Ref` is already present in `C:\Program Files\dotnet\packs\`.
+Restore without any RID flags:
 
 ```powershell
-dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r any
-dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r any
-dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r any
+dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
+dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
+dotnet restore src\tools\TerminalStress\TerminalStress.csproj
 dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
 dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 ```
 
-**CI relevance:** All 5 SDK-style projects must be in the restore step. `net*-windows` TFMs need `-r any`.
-Plain `net8.0` / `net472` projects do not.
+**CI relevance:** Do not add `setup-dotnet` for .NET 8/9 — it replaces the full-installer .NET with a
+packs-incomplete install. All 5 SDK-style projects must still be in the restore step.
 
 ---
 

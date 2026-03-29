@@ -29,32 +29,20 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
 
-      - name: Set up .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          # 8.x required for net8.0-windows projects (WpfTerminalControl etc.)
-          # 9.x required by WpfTerminalControl's net472 TFM restore and build tooling
-          dotnet-version: |
-            8.x
-            9.x
-
       - name: Restore SDK-style projects
         run: |
-          $env:DOTNET_ROOT = 'C:\Program Files\dotnet'
-          $env:PATH = "C:\Program Files\dotnet;$env:PATH"
-          # -r any: fetches Microsoft.Windows.SDK.NET.Ref ref assemblies needed for
-          # net8.0-windows at build time, without triggering self-contained runtime
-          # pack download (which would cause NU1102 against the TerminalDependencies feed).
-          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r any
-          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r any
-          dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r any
+          # Use the runner's pre-installed .NET — windows-2022 ships with .NET 8 and 9
+          # installed via the full SDK installer, which includes Windows framework packs
+          # (Microsoft.Windows.SDK.NET.Ref). setup-dotnet installs via dotnet-install.ps1
+          # which omits those packs, causing NETSDK1112 at build time.
+          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
+          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
+          dotnet restore src\tools\TerminalStress\TerminalStress.csproj
           dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
           dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 
       - name: Build
         run: |
-          $env:DOTNET_ROOT = 'C:\Program Files\dotnet'
-          $env:PATH = "C:\Program Files\dotnet;$env:PATH"
           Import-Module .\tools\OpenConsole.psm1
           Set-MsBuildDevEnvironment
           Invoke-OpenConsoleBuild `
