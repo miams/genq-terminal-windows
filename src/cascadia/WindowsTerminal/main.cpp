@@ -84,15 +84,9 @@ static void EnsureNativeArchitecture()
 
 int __stdcall wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int nCmdShow)
 {
-    TraceLoggingRegister(g_hWindowsTerminalProvider);
+    // GenQuery: Microsoft telemetry disabled.
+    // TraceLoggingRegister and TraceLoggingWrite removed. Custom analytics deferred to Phase 7.
     ::Microsoft::Console::ErrorReporting::EnableFallbackFailureReporting(g_hWindowsTerminalProvider);
-
-    TraceLoggingWrite(
-        g_hWindowsTerminalProvider,
-        "ExeCreated",
-        TraceLoggingDescription("Event emitted when the terminal process is started"),
-        TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES),
-        TelemetryPrivacyDataTag(PDT_ProductAndServiceUsage));
 
     // If Terminal is spawned by a shortcut that requests that it run in a new process group
     // while attached to a console session, that request is nonsense. That request will, however,

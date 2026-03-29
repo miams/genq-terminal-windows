@@ -473,14 +473,7 @@ void WindowEmperor::HandleCommandlineArgs(int nCmdShow)
                 const uint8_t distribution = IsPackaged()                             ? 2 :
                                              _app.Logic().Settings().IsPortableMode() ? 1 :
                                                                                         0;
-                TraceLoggingWrite(
-                    g_hWindowsTerminalProvider,
-                    "SessionBecameInteractive",
-                    TraceLoggingDescription("Event emitted when the session was interacted with"),
-                    TraceLoggingValue(branding, "Branding"),
-                    TraceLoggingValue(distribution, "Distribution"),
-                    TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES),
-                    TelemetryPrivacyDataTag(PDT_ProductAndServiceUsage));
+                // GenQuery: Microsoft telemetry disabled.
                 loggedInteraction = true;
             }
 

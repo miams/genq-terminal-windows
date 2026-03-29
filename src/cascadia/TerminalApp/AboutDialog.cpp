@@ -44,9 +44,9 @@ namespace winrt::TerminalApp::implementation
     void AboutDialog::_SendFeedbackOnClick(const IInspectable& /*sender*/, const Windows::UI::Xaml::Controls::ContentDialogButtonClickEventArgs& /*eventArgs*/)
     {
 #if defined(WT_BRANDING_RELEASE)
-        ShellExecute(nullptr, nullptr, L"https://go.microsoft.com/fwlink/?linkid=2125419", nullptr, nullptr, SW_SHOW);
+        ShellExecute(nullptr, nullptr, L"https://github.com/miams/genq/discussions", nullptr, nullptr, SW_SHOW);
 #else
-        ShellExecute(nullptr, nullptr, L"https://go.microsoft.com/fwlink/?linkid=2204904", nullptr, nullptr, SW_SHOW);
+        ShellExecute(nullptr, nullptr, L"https://github.com/miams/genq/discussions", nullptr, nullptr, SW_SHOW);
 #endif
     }
 

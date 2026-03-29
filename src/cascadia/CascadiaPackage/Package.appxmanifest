@@ -19,13 +19,13 @@
   IgnorableNamespaces="uap mp rescap uap3 uap17 desktop6 virtualization">
 
   <Identity
-    Name="Microsoft.WindowsTerminal"
-    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-    Version="1.0.0.0" />
+    Name="com.zephyrsystems.genquery"
+    Publisher="CN=Zephyr Systems"
+    Version="0.1.1.0" />
 
   <Properties>
     <DisplayName>ms-resource:AppStoreName</DisplayName>
-    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
+    <PublisherDisplayName>Zephyr Systems</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
     <!-- Older versions of Windows 10 respect this -->
     <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
@@ -165,7 +165,7 @@
         </uap3:Extension>
         <uap3:Extension Category="windows.appExtensionHost">
           <uap3:AppExtensionHost>
-            <uap3:Name>com.microsoft.windows.terminal.settings</uap3:Name>
+            <uap3:Name>com.zephyrsystems.genquery.settings</uap3:Name>
           </uap3:AppExtensionHost>
         </uap3:Extension>
         <uap5:Extension Category="windows.startupTask">
@@ -246,6 +246,10 @@
         <uap4:Font File="CascadiaCodeItalic.ttf" />
         <uap4:Font File="CascadiaMono.ttf" />
         <uap4:Font File="CascadiaMonoItalic.ttf" />
+        <uap4:Font File="CaskaydiaCoveNerdFont-Regular.ttf" />
+        <uap4:Font File="CaskaydiaCoveNerdFont-Bold.ttf" />
+        <uap4:Font File="CaskaydiaCoveNerdFont-Italic.ttf" />
+        <uap4:Font File="CaskaydiaCoveNerdFont-BoldItalic.ttf" />
       </uap7:SharedFonts>
     </uap7:Extension>
   </Extensions>
