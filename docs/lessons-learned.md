@@ -245,33 +245,27 @@ had no `project.assets.json` and failed when MSBuild tried to build them.
 
 `src/tools/ColorTool` uses `net461` with `packages.config` — handled by `nuget.exe`, not `dotnet restore`.
 
-**What does NOT work:** Adding `-r win-x64` to `dotnet restore` makes it look for self-contained runtime
-packs (`Microsoft.NETCore.App.Runtime.win-x64 8.0.25`). These are not present in the project's private
-NuGet feed (`TerminalDependencies` only has 6.0.9), causing NU1102.
+**What does NOT work:**
+- `-r win-x64`: triggers self-contained restore, looks for `Microsoft.NETCore.App.Runtime.win-x64 8.0.25`
+  which isn't in TerminalDependencies feed (only has 6.0.9) → NU1102.
+- No `-r` flag: restore succeeds but `Microsoft.Windows.SDK.NET.Ref` is not included in
+  `project.assets.json` → MSBuild fails with NETSDK1112 at build time.
 
-**Fix:** Install both .NET 8 and .NET 9 SDKs in the workflow, then restore without a RuntimeIdentifier.
-The .NET 8 SDK provides the `Microsoft.Windows.SDK.NET.Ref` reference assemblies for `net8.0-windows`
-projects without requiring self-contained runtime packs.
-
-```yaml
-- name: Set up .NET SDK
-  uses: actions/setup-dotnet@v4
-  with:
-    dotnet-version: |
-      8.x
-      9.x
-```
+**Fix:** Use `-r any` for `net*-windows` projects. `any` is a pseudo-RID that fetches Windows reference
+assemblies (`Microsoft.Windows.SDK.NET.Ref`) without triggering self-contained runtime pack download.
+This is exactly what the NETSDK1112 error message recommends: *"Try running a NuGet restore with the
+RuntimeIdentifier 'any'."*
 
 ```powershell
-dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
-dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
-dotnet restore src\tools\TerminalStress\TerminalStress.csproj
+dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r any
+dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r any
+dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r any
 dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
 dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 ```
 
-**CI relevance:** All 5 SDK-style projects must be in the restore step. Do NOT use `-r win-x64` on restore —
-it triggers self-contained mode which requires runtime packs not present in TerminalDependencies feed.
+**CI relevance:** All 5 SDK-style projects must be in the restore step. `net*-windows` TFMs need `-r any`.
+Plain `net8.0` / `net472` projects do not.
 
 ---
 
