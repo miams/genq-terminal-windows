@@ -31,13 +31,16 @@ jobs:
 
       - name: Restore SDK-style projects
         run: |
-          # -r win-x64 tells dotnet which platform to target, so it resolves
+          $ErrorActionPreference = 'Stop'
+          # -r win-x64 tells dotnet which platform to target so it resolves
           # Microsoft.Windows.SDK.NET.Ref (needed for net8.0-windows at build time).
-          # --no-self-contained prevents self-contained mode, which would try to download
+          # /p:SelfContained=false prevents self-contained mode, which would download
           # Microsoft.NETCore.App.Runtime.win-x64 — absent from TerminalDependencies feed (NU1102).
-          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64 --no-self-contained
-          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64 --no-self-contained
-          dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64 --no-self-contained
+          # Note: --no-self-contained is NOT valid here; dotnet passes it to MSBuild.dll
+          # which rejects it with MSB1001. Must use /p:SelfContained=false instead.
+          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64 /p:SelfContained=false
+          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64 /p:SelfContained=false
+          dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64 /p:SelfContained=false
           dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
           dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 

@@ -255,20 +255,32 @@ had no `project.assets.json` and failed when MSBuild tried to build them.
   packs. Removing it and relying on runner's pre-installed .NET made no difference — SDK 10.0.105 is
   always active (highest version wins) and still can't find net8.0-windows packs.
 
-**Fix:** Use `-r win-x64 --no-self-contained` together:
-- `-r win-x64`: tells the SDK which platform → resolves `Microsoft.Windows.SDK.NET.Ref` correctly
-- `--no-self-contained`: suppresses self-contained mode → no runtime pack download → no NU1102
+**Fix:** Use `-r win-x64 /p:SelfContained=false` together:
+- `-r win-x64`: tells the SDK the target platform → resolves `Microsoft.Windows.SDK.NET.Ref` correctly
+- `/p:SelfContained=false`: suppresses self-contained mode → no runtime pack download → no NU1102
+
+**Critical:** Do NOT use `--no-self-contained` — `dotnet restore` passes it directly to MSBuild.dll
+as a CLI switch where it is unrecognized, causing `MSB1001: Unknown switch`. The restore then fails
+silently (unless `$ErrorActionPreference = 'Stop'` is set), leaving no `project.assets.json`, which
+causes NETSDK1004 at build time.
 
 ```powershell
-dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64 --no-self-contained
-dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64 --no-self-contained
-dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64 --no-self-contained
+$ErrorActionPreference = 'Stop'
+dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64 /p:SelfContained=false
+dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64 /p:SelfContained=false
+dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64 /p:SelfContained=false
 dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
 dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 ```
 
-**CI relevance:** All 5 SDK-style projects must be in the restore step. `net*-windows` TFMs need both
-`-r win-x64` and `--no-self-contained`. Do not use `setup-dotnet` — SDK 10 on the runner is fine.
+Also pass the same properties to MSBuild so the restore fingerprint matches:
+```
+/p:RuntimeIdentifier=win-x64 /p:SelfContained=false
+```
+
+**CI relevance:** Always set `$ErrorActionPreference = 'Stop'` in restore steps — silent failures
+burn entire 30-minute build runs before surfacing. `net*-windows` TFMs need `-r win-x64 /p:SelfContained=false`.
+Do not use `setup-dotnet` — SDK 10 on the runner is fine.
 
 ---
 
