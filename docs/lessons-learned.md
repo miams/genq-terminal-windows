@@ -245,17 +245,33 @@ had no `project.assets.json` and failed when MSBuild tried to build them.
 
 `src/tools/ColorTool` uses `net461` with `packages.config` — handled by `nuget.exe`, not `dotnet restore`.
 
-**Fix:** Restore all SDK-style projects, using `-r win-x64` for those targeting `net*-windows`:
+**What does NOT work:** Adding `-r win-x64` to `dotnet restore` makes it look for self-contained runtime
+packs (`Microsoft.NETCore.App.Runtime.win-x64 8.0.25`). These are not present in the project's private
+NuGet feed (`TerminalDependencies` only has 6.0.9), causing NU1102.
+
+**Fix:** Install both .NET 8 and .NET 9 SDKs in the workflow, then restore without a RuntimeIdentifier.
+The .NET 8 SDK provides the `Microsoft.Windows.SDK.NET.Ref` reference assemblies for `net8.0-windows`
+projects without requiring self-contained runtime packs.
+
+```yaml
+- name: Set up .NET SDK
+  uses: actions/setup-dotnet@v4
+  with:
+    dotnet-version: |
+      8.x
+      9.x
+```
+
 ```powershell
-dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64
-dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64
-dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64
+dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
+dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
+dotnet restore src\tools\TerminalStress\TerminalStress.csproj
 dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
 dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 ```
 
-**CI relevance:** All 5 must be in the restore step. If new SDK-style projects are added to the solution,
-add them here too. Check target framework: `net*-windows` needs `-r win-x64`.
+**CI relevance:** All 5 SDK-style projects must be in the restore step. Do NOT use `-r win-x64` on restore —
+it triggers self-contained mode which requires runtime packs not present in TerminalDependencies feed.
 
 ---
 

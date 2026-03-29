@@ -32,17 +32,19 @@ jobs:
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          # 8.x required for net8.0-windows projects (WpfTerminalControl etc.)
+          # 9.x required by WpfTerminalControl's net472 TFM restore and build tooling
+          dotnet-version: |
+            8.x
+            9.x
 
       - name: Restore SDK-style projects
         run: |
           $env:DOTNET_ROOT = 'C:\Program Files\dotnet'
           $env:PATH = "C:\Program Files\dotnet;$env:PATH"
-          # net8.0-windows projects need -r win-x64 so the Windows SDK .NET reference
-          # pack (Microsoft.Windows.SDK.NET.Ref) is downloaded during restore.
-          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64
-          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64
-          dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64
+          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
+          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
+          dotnet restore src\tools\TerminalStress\TerminalStress.csproj
           dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
           dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 
