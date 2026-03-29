@@ -801,6 +801,8 @@
       <BuildType Solution="Fuzzing|x64" Project="Debug" />
       <Build Solution="AuditMode|Any CPU" Project="false" />
       <Build Solution="Fuzzing|*" Project="false" />
+      <!-- Not needed for the GenQuery Terminal artifact; excluded to avoid NU1102 from net472+net8.0-windows multi-targeting with RID restore -->
+      <Build Solution="Release|x64" Project="false" />
     </Project>
     <Project Path="src/cascadia/WpfTerminalTestNetCore/WpfTerminalTestNetCore.csproj">
       <BuildDependency Project="src/cascadia/TerminalControl/dll/TerminalControl.vcxproj" />
@@ -823,6 +825,8 @@
       <Build Solution="Fuzzing|ARM64" Project="false" />
       <Build Solution="Fuzzing|x64" Project="false" />
       <Build Solution="Fuzzing|x86" Project="false" />
+      <!-- Not needed for the GenQuery Terminal artifact -->
+      <Build Solution="Release|x64" Project="false" />
     </Project>
   </Folder>
   <Folder Name="/_Build Common/" />
@@ -1004,6 +1008,8 @@
       <Build Solution="AuditMode|x64" Project="false" />
       <Build Solution="Fuzzing|Any CPU" Project="false" />
       <Build Solution="Fuzzing|x64" Project="false" />
+      <!-- Not needed for the GenQuery Terminal artifact -->
+      <Build Solution="Release|x64" Project="false" />
     </Project>
     <Project Path="src/tools/U8U16Test/U8U16Test.vcxproj" Id="a602a555-baac-46e1-a91d-3dab0475c5a1">
       <BuildType Solution="AuditMode|*" Project="Release" />
