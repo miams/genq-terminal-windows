@@ -215,6 +215,50 @@ then update `/p:WindowsTargetPlatformVersion` and `/p:TargetPlatformVersion` and
 
 ---
 
+## Issue 11 — NETSDK1112 / NETSDK1004: missing runtime packs and assets for SDK-style projects
+
+**Symptoms:**
+```
+error NETSDK1112: The runtime pack for Microsoft.Windows.SDK.NET.Ref was not downloaded.
+  Try running a NuGet restore with the RuntimeIdentifier 'any'.
+error NETSDK1004: Assets file '...\TerminalStress\obj\project.assets.json' not found.
+  Run a NuGet package restore to generate this file.
+```
+
+**Cause (NETSDK1112):** Projects targeting `net8.0-windows` require `Microsoft.Windows.SDK.NET.Ref`
+(the Windows SDK .NET reference assembly pack). `dotnet restore` without a RuntimeIdentifier does not
+download this platform-specific pack. Building then fails because MSBuild can't resolve the Windows APIs.
+
+**Cause (NETSDK1004):** Only 2 of the 5 SDK-style `.csproj` files in the repo were included in the
+`dotnet restore` step. The remaining 3 (`TerminalStress`, `GraphemeTableGen`, `GraphemeTestTableGen`)
+had no `project.assets.json` and failed when MSBuild tried to build them.
+
+**SDK-style projects in this repo (nuget.exe does NOT restore these — dotnet restore required):**
+
+| Project | TFM | Notes |
+|---|---|---|
+| `src/cascadia/WpfTerminalControl` | `net472`, `net8.0-windows` | Needs `-r win-x64` |
+| `src/cascadia/WpfTerminalTestNetCore` | `net8.0-windows` | Needs `-r win-x64` |
+| `src/tools/TerminalStress` | `net8.0-windows` | Needs `-r win-x64` |
+| `src/tools/GraphemeTableGen` | `net8.0` | No RID needed |
+| `src/tools/GraphemeTestTableGen` | `net8.0` | No RID needed |
+
+`src/tools/ColorTool` uses `net461` with `packages.config` — handled by `nuget.exe`, not `dotnet restore`.
+
+**Fix:** Restore all SDK-style projects, using `-r win-x64` for those targeting `net*-windows`:
+```powershell
+dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64
+dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64
+dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64
+dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
+dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
+```
+
+**CI relevance:** All 5 must be in the restore step. If new SDK-style projects are added to the solution,
+add them here too. Check target framework: `net*-windows` needs `-r win-x64`.
+
+---
+
 ## Recommended CI MSBuild invocation (AMD64)
 
 ```yaml
