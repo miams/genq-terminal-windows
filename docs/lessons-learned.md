@@ -246,29 +246,29 @@ had no `project.assets.json` and failed when MSBuild tried to build them.
 `src/tools/ColorTool` uses `net461` with `packages.config` — handled by `nuget.exe`, not `dotnet restore`.
 
 **What does NOT work:**
-- `-r win-x64`: triggers self-contained restore, looks for `Microsoft.NETCore.App.Runtime.win-x64 8.0.25`
-  which isn't in the TerminalDependencies feed (only has 6.0.9) → NU1102.
-- `-r any`: restore succeeds but NETSDK1112 still fires at build time — `any` does not cause dotnet to
-  download `Microsoft.Windows.SDK.NET.Ref` either.
-- `setup-dotnet` installing .NET 8.x + 9.x via `dotnet-install.ps1`: that script installs the SDK
-  binaries only, not framework packs. `Microsoft.Windows.SDK.NET.Ref` is a framework pack installed
-  by the full SDK installer, not by `dotnet-install.ps1`.
+- `-r win-x64` alone: .NET 6+ defaults to self-contained when a RID is given. Tries to download
+  `Microsoft.NETCore.App.Runtime.win-x64 8.0.25` which isn't in TerminalDependencies feed → NU1102.
+- `-r any`: restore succeeds but NETSDK1112 fires at build time — `any` does not resolve
+  `Microsoft.Windows.SDK.NET.Ref` for the platform.
+- No RID: same as `-r any` for this purpose — NETSDK1112 at build time.
+- `setup-dotnet` installing .NET 8.x: `dotnet-install.ps1` installs SDK binaries only, not framework
+  packs. Removing it and relying on runner's pre-installed .NET made no difference — SDK 10.0.105 is
+  always active (highest version wins) and still can't find net8.0-windows packs.
 
-**Fix:** Do NOT use `setup-dotnet`. The `windows-2022` runner ships with .NET 8 and .NET 9 installed
-via the full SDK installer, which includes all Windows framework packs. Using the runner's pre-installed
-.NET means `Microsoft.Windows.SDK.NET.Ref` is already present in `C:\Program Files\dotnet\packs\`.
-Restore without any RID flags:
+**Fix:** Use `-r win-x64 --no-self-contained` together:
+- `-r win-x64`: tells the SDK which platform → resolves `Microsoft.Windows.SDK.NET.Ref` correctly
+- `--no-self-contained`: suppresses self-contained mode → no runtime pack download → no NU1102
 
 ```powershell
-dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
-dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
-dotnet restore src\tools\TerminalStress\TerminalStress.csproj
+dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64 --no-self-contained
+dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64 --no-self-contained
+dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64 --no-self-contained
 dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
 dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 ```
 
-**CI relevance:** Do not add `setup-dotnet` for .NET 8/9 — it replaces the full-installer .NET with a
-packs-incomplete install. All 5 SDK-style projects must still be in the restore step.
+**CI relevance:** All 5 SDK-style projects must be in the restore step. `net*-windows` TFMs need both
+`-r win-x64` and `--no-self-contained`. Do not use `setup-dotnet` — SDK 10 on the runner is fine.
 
 ---
 

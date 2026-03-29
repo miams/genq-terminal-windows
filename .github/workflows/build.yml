@@ -31,13 +31,13 @@ jobs:
 
       - name: Restore SDK-style projects
         run: |
-          # Use the runner's pre-installed .NET — windows-2022 ships with .NET 8 and 9
-          # installed via the full SDK installer, which includes Windows framework packs
-          # (Microsoft.Windows.SDK.NET.Ref). setup-dotnet installs via dotnet-install.ps1
-          # which omits those packs, causing NETSDK1112 at build time.
-          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj
-          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj
-          dotnet restore src\tools\TerminalStress\TerminalStress.csproj
+          # -r win-x64 tells dotnet which platform to target, so it resolves
+          # Microsoft.Windows.SDK.NET.Ref (needed for net8.0-windows at build time).
+          # --no-self-contained prevents self-contained mode, which would try to download
+          # Microsoft.NETCore.App.Runtime.win-x64 — absent from TerminalDependencies feed (NU1102).
+          dotnet restore src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj -r win-x64 --no-self-contained
+          dotnet restore src\cascadia\WpfTerminalTestNetCore\WpfTerminalTestNetCore.csproj -r win-x64 --no-self-contained
+          dotnet restore src\tools\TerminalStress\TerminalStress.csproj -r win-x64 --no-self-contained
           dotnet restore src\tools\GraphemeTableGen\GraphemeTableGen.csproj
           dotnet restore src\tools\GraphemeTestTableGen\GraphemeTestTableGen.csproj
 
