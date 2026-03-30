@@ -461,19 +461,7 @@ void WindowEmperor::HandleCommandlineArgs(int nCmdShow)
         {
             if (!loggedInteraction)
             {
-#if defined(WT_BRANDING_RELEASE)
-                constexpr uint8_t branding = 3;
-#elif defined(WT_BRANDING_PREVIEW)
-                constexpr uint8_t branding = 2;
-#elif defined(WT_BRANDING_CANARY)
-                constexpr uint8_t branding = 1;
-#else
-                constexpr uint8_t branding = 0;
-#endif
-                const uint8_t distribution = IsPackaged()                             ? 2 :
-                                             _app.Logic().Settings().IsPortableMode() ? 1 :
-                                                                                        0;
-                // GenQuery: Microsoft telemetry disabled.
+                // GenQuery: Microsoft telemetry disabled. branding/distribution vars removed.
                 loggedInteraction = true;
             }
 
