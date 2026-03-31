@@ -38,7 +38,7 @@
         {
             "guid": "{d7a9f5cd-3c14-4f79-8b1a-2e6f9da3b4c5}",
             "name": "GenQuery",
-            "commandline": "powershell.exe -ExecutionPolicy Bypass -File \"%GENQUERY_RESOURCES_DIR%\\genq\\scripts\\genquery-start.ps1\"",
+            "commandline": "powershell.exe -ExecutionPolicy Bypass -File \"%__APPDIR__%\\genq\\scripts\\genquery-start.ps1\"",
             "startingDirectory": "%USERPROFILE%",
             "hidden": false,
             "colorScheme": "GenQuery Dark",

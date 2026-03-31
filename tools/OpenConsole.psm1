@@ -9,6 +9,12 @@ function Find-OpenConsoleRoot
 {
     $root = (git rev-parse --show-toplevel 2>$null)
     If ($?) {
+        # Convert UNC path to mapped drive letter if needed
+        if ($root -match '^[/\\]{2}') {
+            $rootNorm = ($root -replace '/', '\').TrimEnd('\')
+            $drive = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.DisplayRoot -and $rootNorm -eq $_.DisplayRoot.TrimEnd('\') } | Select-Object -First 1
+            if ($drive) { $root = $drive.Root.TrimEnd('\') }
+        }
         return $root
     }
     return $script:OpenConsoleFallbackRoot

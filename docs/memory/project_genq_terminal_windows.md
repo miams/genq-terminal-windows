@@ -5,9 +5,9 @@ type: project
 ---
 
 **Repo:** `miams/genq-terminal-windows` (public fork of microsoft/terminal)
-**Local path:** /Users/miams/Code/genq-terminal-windows
+**Local path (Windows VM):** C:\Users\miams\Code\genq-terminal-windows
 **Active branch:** `genq`
-**Status as of 2026-03-22:** Fork created, initial customizations committed, CI workflow written — local Windows build NOT yet verified
+**Status as of 2026-03-22:** Fork created, initial customizations committed, CI workflow written — **local Windows ARM64 build VERIFIED**
 
 **This is an interim solution.** Will be retired when Ghostty's Windows support matures. Retirement criteria in genq-terminal/docs/windows.md.
 
@@ -22,12 +22,25 @@ type: project
 
 **genquery-start.ps1:** Lives in miams/genq/scripts/genquery-start.ps1. Mirrors bash script — detects bundle mode via GENQUERY_RESOURCES_DIR, falls back to repo-relative paths in dev mode.
 
-**CRITICAL NEXT STEP:** Local build not verified on Windows VM. Must build OpenConsole.slnx in Visual Studio 2022 on a Windows 11 ARM64 VM before trusting CI results.
+**Build verified:** 2026-03-22 on Windows 11 ARM64 (Parallels VM). `WindowsTerminal.exe` and `wt.exe` produced in `bin\ARM64\Release\`.
 
-**Build requirements:**
-- Visual Studio 2022 with Desktop development with C++ workload
-- Windows 11 SDK (10.0.22621.0)
-- NuGet package restore
+**Build command (C:\Temp\build_genq.ps1):**
+```powershell
+Set-Location 'C:\Users\miams\Code\genq-terminal-windows'
+$env:DOTNET_ROOT = 'C:\Program Files\dotnet'
+$env:PATH = "C:\Program Files\dotnet;$env:PATH"
+Import-Module .\tools\OpenConsole.psm1
+Set-MsBuildDevEnvironment
+Invoke-OpenConsoleBuild /p:Platform=ARM64 /p:Configuration=Release /p:WindowsTargetPlatformVersion=10.0.22621.0 /p:TargetPlatformVersion=10.0.22621.0
+```
+Must use `pwsh.exe` (PowerShell 7), not Windows PowerShell 5.1 — `OpenConsole.psm1` requires PS7.
+
+**Build requirements (actual):**
+- Visual Studio 2022 Community with workloads: `NativeDesktop`, `Universal` (UWP), `UWP.VC` C++ tools, `.NET Framework 4.7.2 targeting pack`
+- .NET 9 SDK (`winget install Microsoft.DotNet.SDK.9`)
+- PowerShell 7 (`winget install Microsoft.PowerShell`)
+- Windows SDK 10.0.22621.0
+- Must pass `/p:TargetPlatformVersion=10.0.22621.0 /p:WindowsTargetPlatformVersion=10.0.22621.0` explicitly — ARM64 VM missing 64-bit registry key `HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0`, so MSBuild auto-detection fails
 
 **CI:** build-windows job in miams/genq/.github/workflows/build-terminal.yml — windows-latest runner, MSBuild x64 Release, ZIP artifact.
 

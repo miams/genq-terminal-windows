@@ -128,6 +128,14 @@
                 </com:SurrogateServer>
             </com:ComServer>
         </com:Extension>
+        <uap4:Extension Category="windows.sharedFonts">
+            <uap4:SharedFonts>
+                <uap4:Font File="CaskaydiaCoveNerdFont-Regular.ttf" />
+                <uap4:Font File="CaskaydiaCoveNerdFont-Bold.ttf" />
+                <uap4:Font File="CaskaydiaCoveNerdFont-Italic.ttf" />
+                <uap4:Font File="CaskaydiaCoveNerdFont-BoldItalic.ttf" />
+            </uap4:SharedFonts>
+        </uap4:Extension>
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
             <desktop4:FileExplorerContextMenus>
                 <desktop5:ItemType Type="Directory">

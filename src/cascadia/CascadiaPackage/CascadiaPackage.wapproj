@@ -175,4 +175,14 @@
   <Import Project="$(OpenConsoleDir)src\common.nugetversions.targets" />
 
   <Import Project="$(SolutionDir)build\rules\CollectWildcardResources.targets" />
+
+  <!-- GenQuery bundled files: Nushell binary + genq source, staged from genq repo during CI.
+       Only included when nu.exe is present (CI builds). Dev builds that skip staging
+       still compile fine — the files just won't appear in the package. -->
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)genq\nu.exe')">
+    <Content Include="$(MSBuildThisFileDirectory)genq\**\*">
+      <DeploymentContent>true</DeploymentContent>
+    </Content>
+  </ItemGroup>
+
 </Project>
